@@ -1,0 +1,178 @@
+/* src/App.css */
+
+/* 전체 페이지 기본 설정 */
+body {
+  background-color: #f4f4f9;
+  font-family: 'Malgun Gothic', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 50px;
+  height: 100vh;
+  margin: 0;
+}
+
+/* 앱 전체를 감싸는 컨테이너 */
+.app-container {
+  background-color: white;
+  width: 100%;
+  max-width: 500px;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+}
+
+/* 할 일 입력 영역 */
+.input-area {
+  display: flex;
+  gap: 10px; /* 입력창과 버튼 사이 간격 */
+  margin-bottom: 20px;
+}
+
+.input-area input {
+  flex-grow: 1; /* 남는 공간을 모두 차지 */
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.input-area button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.input-area button:hover {
+  background-color: #0056b3;
+}
+
+/* 할 일 목록 영역 */
+.list-area {
+  list-style-type: none; /* 목록 앞의 점 제거 */
+  padding: 0;
+  margin: 0;
+}
+
+.list-area li {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 16px;
+}
+
+/* 마지막 목록의 밑줄은 제거 */
+.list-area li:last-child {
+  border-bottom: none;
+}
+
+/* list-area의 li 스타일 수정 (삭제 버튼을 위한 공간 확보) */
+.list-area li {
+  display: flex;
+  justify-content: space-between; /* 양쪽 끝으로 정렬 */
+  align-items: center; /* 세로 중앙 정렬 */
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 16px;
+}
+
+/* 삭제 버튼 스타일 */
+.delete-button {
+  border: none;
+  background-color: #dc3545;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+/* src/App.css 에 추가할 내용 */
+
+/* --- 인증 화면 스타일 --- */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f9;
+}
+.auth-form {
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+.auth-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.auth-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
+}
+.auth-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.auth-buttons button {
+  flex-grow: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+.auth-buttons button:hover {
+  background-color: #0056b3;
+}
+
+
+/* --- 로그인 후 헤더 스타일 --- */
+.header {
+  margin-bottom: 20px;
+}
+.user-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #555;
+  margin-top: 10px;
+}
+.logout-button {
+  padding: 5px 10px;
+  border: none;
+  background-color: #6c757d;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.logout-button:hover {
+  background-color: #5a6268;
+}
+
+.creator {
+  color: #888;
+  margin-left: 8px;
+  font-size: 12px;
+}
