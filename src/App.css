@@ -176,3 +176,33 @@ h1 {
   margin-left: 8px;
   font-size: 12px;
 }
+/* src/App.css 에 추가할 내용 */
+
+/* 섹션 제목 스타일 */
+.section-title {
+  margin-top: 40px;
+  margin-bottom: 10px;
+  font-size: 20px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 5px;
+}
+
+/* 완료 버튼 스타일 (기존 삭제 버튼 대신) */
+.complete-button {
+  border: none;
+  background-color: #28a745; /* 초록색 계열 */
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.complete-button:hover {
+  background-color: #218838;
+}
+
+/* 완료된 항목 스타일 */
+.completed-item span {
+  text-decoration: line-through; /* 취소선 */
+  color: #888; /* 회색으로 */
+}

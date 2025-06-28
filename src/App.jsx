@@ -1,10 +1,8 @@
-// src/App.jsx (로그인 기능 추가된 최종 코드)
+// src/App.jsx (새로운 전체 코드)
 
 import { useState, useEffect } from 'react';
 import './App.css';
-// 1. db 외에 auth 객체도 가져옵니다.
-import { db, auth } from './firebase';
-// 2. 인증 관련 함수들을 가져옵니다.
+import { db, auth } from './firebase'; // auth도 가져오는지 확인
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -17,40 +15,33 @@ import {
   orderBy,
   onSnapshot,
   addDoc,
-  deleteDoc,
   doc,
+  updateDoc, // ★★★ 데이터를 업데이트하기 위한 updateDoc 함수를 가져옵니다. ★★★
   serverTimestamp,
+  deleteDoc, // (선택) 완료된 항목을 진짜로 지우고 싶을 때를 위해 남겨둡니다.
 } from 'firebase/firestore';
 
 
 function App() {
   const [todos, setTodos] = useState([]);
   const [inputValue, setInputValue] = useState('');
-
-  // --- 인증 관련 State ---
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [user, setUser] = useState(null); // 로그인된 사용자 정보를 저장할 state
+  const [user, setUser] = useState(null);
 
-  // --- 앱이 시작될 때 사용자의 로그인 상태를 확인 ---
+  // --- 로그인 및 데이터 로딩 관련 코드는 기존과 동일 ---
   useEffect(() => {
-    // onAuthStateChanged: 로그인 상태가 바뀔 때마다 (로그인, 로그아웃) 실행되는 감시자
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser); // 사용자가 있으면 user state에 저장, 없으면 null
+      setUser(currentUser);
     });
     return () => unsubscribe();
   }, []);
 
-
-  // --- 로그인된 사용자에게만 할 일 목록을 보여줌 ---
   useEffect(() => {
-    // 사용자가 로그인 상태가 아니면 아무것도 하지 않음
     if (!user) {
-      setTodos([]); // 로그아웃 시 기존 목록 비우기
+      setTodos([]);
       return;
     }
-
-    // (기존 코드와 동일) 로그인된 사용자의 할 일 목록을 가져옴
     const q = query(collection(db, 'todos'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const todosArray = [];
@@ -59,79 +50,50 @@ function App() {
       });
       setTodos(todosArray);
     });
-
     return () => unsubscribe();
-  }, [user]); // user state가 바뀔 때마다 이 useEffect가 다시 실행됨
+  }, [user]);
 
-
-  // --- 회원가입 처리 함수 ---
-  const handleSignUp = async (e) => {
-    e.preventDefault(); // 폼 제출 시 페이지 새로고침 방지
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      console.log('회원가입 성공!', userCredential.user);
-    } catch (error) {
-      alert(`회원가입 실패: ${error.message}`);
-    }
-  };
-
-  // --- 로그인 처리 함수 ---
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('로그인 성공!', userCredential.user);
-    } catch (error) {
-      alert(`로그인 실패: ${error.message}`);
-    }
-  };
-
-  // --- 로그아웃 처리 함수 ---
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error('로그아웃 실패', error);
-    }
-  };
-
-
-  // (기존 코드와 동일) 할 일 추가/삭제 함수
+  // ★★★ '할 일 추가' 함수 (status 필드 추가됨) ★★★
   const handleAddTodo = async () => {
     if (inputValue.trim() === '') return;
     await addDoc(collection(db, 'todos'), {
       text: inputValue,
       createdAt: serverTimestamp(),
-      createdBy: user.email, // ★★★ 할 일을 추가한 사람의 이메일도 함께 저장
+      createdBy: user.email,
+      status: 'todo', // 기본 상태는 'todo'
     });
     setInputValue('');
   };
 
-  const handleDeleteTodo = async (idToDelete) => {
+  // ★★★ '할 일 완료' 처리 함수 (새로 만듦!) ★★★
+  const handleCompleteTodo = async (idToComplete) => {
+    const todoDoc = doc(db, 'todos', idToComplete);
+    await updateDoc(todoDoc, {
+      status: 'done', // status 필드를 'done'으로 업데이트
+    });
+  };
+
+  // (선택) 완료된 항목을 영구 삭제하는 함수
+  const handleDeleteCompletedTodo = async (idToDelete) => {
     const todoDoc = doc(db, 'todos', idToDelete);
     await deleteDoc(todoDoc);
   };
 
-  // --- 로그인 상태에 따라 다른 화면을 보여줌 ---
+
+  // --- 로그인/회원가입/로그아웃 함수는 기존과 동일 ---
+  const handleSignUp = async (e) => { e.preventDefault(); try { await createUserWithEmailAndPassword(auth, email, password); } catch (error) { alert(`회원가입 실패: ${error.message}`); } };
+  const handleLogin = async (e) => { e.preventDefault(); try { await signInWithEmailAndPassword(auth, email, password); } catch (error) { alert(`로그인 실패: ${error.message}`); } };
+  const handleLogout = async () => { try { await signOut(auth); } catch (error) { console.error('로그아웃 실패', error); } };
+
+
+  // --- 로그인 화면 (기존과 동일) ---
   if (!user) {
     return (
       <div className="auth-container">
         <form className="auth-form">
           <h2>Sage Fine Art 팀 로그인</h2>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="이메일"
-            required
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="비밀번호 (6자리 이상)"
-            required
-          />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="이메일" required />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="비밀번호 (6자리 이상)" required />
           <div className="auth-buttons">
             <button onClick={handleLogin}>로그인</button>
             <button onClick={handleSignUp}>회원가입</button>
@@ -141,8 +103,12 @@ function App() {
     );
   }
 
+  // ★★★ 화면에 그릴 데이터를 필터링합니다. ★★★
+  const pendingTodos = todos.filter(todo => todo.status === 'todo');
+  const completedTodos = todos.filter(todo => todo.status === 'done');
 
-  // --- 로그인된 사용자에게 보여줄 할 일 목록 화면 ---
+
+  // --- 로그인 후 메인 화면 (수정됨!) ---
   return (
     <div className="app-container">
       <div className="header">
@@ -154,23 +120,37 @@ function App() {
       </div>
 
       <div className="input-area">
-        <input
-          type="text"
-          placeholder="오늘의 할 일을 입력하세요"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-        />
+        <input type="text" placeholder="새로운 업무를 입력하세요" value={inputValue} onChange={(e) => setInputValue(e.target.value)} />
         <button onClick={handleAddTodo}>추가</button>
       </div>
+
+      {/* ★★★ '해야 할 일' 섹션 ★★★ */}
+      <h2 className="section-title">해야 할 일 ({pendingTodos.length})</h2>
       <ul className="list-area">
-        {todos.map((todo) => (
+        {pendingTodos.map((todo) => (
           <li key={todo.id}>
             <span>{todo.text} <small className="creator">({todo.createdBy})</small></span>
             <button
-              className="delete-button"
-              onClick={() => handleDeleteTodo(todo.id)}
+              className="complete-button" // CSS 클래스 이름 변경
+              onClick={() => handleCompleteTodo(todo.id)}
             >
-              삭제
+              완료
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      {/* ★★★ '완료된 일' 섹션 ★★★ */}
+      <h2 className="section-title">완료된 일 ({completedTodos.length})</h2>
+      <ul className="list-area">
+        {completedTodos.map((todo) => (
+          <li key={todo.id} className="completed-item">
+            <span>{todo.text} <small className="creator">({todo.createdBy})</small></span>
+            <button
+                className="delete-button"
+                onClick={() => handleDeleteCompletedTodo(todo.id)}
+            >
+                삭제
             </button>
           </li>
         ))}
